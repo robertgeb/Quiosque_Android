@@ -77,8 +77,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int id = v.getId();
         switch (id) {
             case R.id.login_signin:
-                Login(matricula.getText().toString(), password.getText().toString());
+                //Login(matricula.getText().toString(), password.getText().toString());
+                Intent intent = new Intent(this, QuiosqueService.class);
+                intent.setAction("ufrrj.com.quiosque.action.LOGIN");
+                intent.putExtra("ufrrj.com.quiosque.extra.MATRICULA", matricula.getText().toString());
+                intent.putExtra("ufrrj.com.quiosque.extra.SENHA", password.getText().toString());
+                startService(intent);
                 break;
         }
     }
+
 }
