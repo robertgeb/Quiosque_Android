@@ -16,6 +16,7 @@ import ufrrj.com.quiosque.web.LoginTask;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
+    private String ACTION_LOGIN_FAIL = "ufrrj.com.quiosque.action.LOGIN_FAIL";
     private Button signin;
     private EditText matricula, password;
 
@@ -28,6 +29,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         password = (EditText) findViewById(R.id.login_password);
         signin = (Button) findViewById(R.id.login_signin);
         signin.setOnClickListener(this);
+
+        if (getIntent().getAction() == ACTION_LOGIN_FAIL){
+            password.requestFocus();
+            Toast.makeText(this, "Matrícula ou senha inválidos", Toast.LENGTH_SHORT)
+                    .show();
+        }
 
         /*AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
         manager.getNextAlarmClock()*/

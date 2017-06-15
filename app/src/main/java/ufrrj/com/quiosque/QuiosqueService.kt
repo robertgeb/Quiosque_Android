@@ -13,6 +13,7 @@ import org.jsoup.select.Elements
 import java.lang.UnsupportedOperationException
 import android.R.id.edit
 import android.R.id.home
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.SharedPreferences
 
 
@@ -47,7 +48,10 @@ class QuiosqueService : IntentService("QuiosqueService") {
                 .userAgent("Mozilla")
                 .method(Connection.Method.POST)
                 .execute()
-
+        if (response.parse().getElementById("frmId") != null){
+            openLoginActivity()
+            return
+        }
         // Abrindo arquivo para salvar preferencias
         val settings = getSharedPreferences(COOKIES_FILENAME, 0)
         val editor = settings.edit()
@@ -97,6 +101,8 @@ class QuiosqueService : IntentService("QuiosqueService") {
     private fun openLoginActivity() {
         val context = getBaseContext()
         val intent = Intent(context, MainActivity::class.java)
+        intent.setAction("ufrrj.com.quiosque.action.LOGIN_FAIL");
+        intent.setFlags(FLAG_ACTIVITY_NEW_TASK)
         getApplication().startActivity(intent);
     }
 
@@ -106,7 +112,7 @@ class QuiosqueService : IntentService("QuiosqueService") {
                 .userAgent("Mozilla")
                 .get()
     }
-    
+
 
     companion object {
 
