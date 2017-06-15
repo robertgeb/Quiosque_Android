@@ -31,8 +31,9 @@ class QuiosqueService : IntentService("QuiosqueService") {
                 val matricula = intent.getStringExtra(EXTRA_MATRICULA)
                 val senha = intent.getStringExtra(EXTRA_SENHA)
                 handleActionLogin(matricula, senha)
-            } else (ACTION_CHECK_NOVIDADES == action)
+            } else if (ACTION_CHECK_NOVIDADES == action) {
                 handleActionCheckNovidades()
+            }
         }
     }
 
@@ -49,7 +50,7 @@ class QuiosqueService : IntentService("QuiosqueService") {
                 .method(Connection.Method.POST)
                 .execute()
         if (response.parse().getElementById("frmId") != null){
-            openLoginActivity()
+            openLoginActivity("ufrrj.com.quiosque.action.LOGIN_FAIL")
             return
         }
         // Abrindo arquivo para salvar preferencias
@@ -73,7 +74,7 @@ class QuiosqueService : IntentService("QuiosqueService") {
         val homePage = getHomePage(settings.getAll() as Map<String, String>)
         // Se cookie não for válido abrir Login Activity
         if (homePage.getElementById("frmId") != null){
-            openLoginActivity()
+            openLoginActivity("ufrrj.com.quiosque.action.COOKIE_EXPIRED")
             return
         }
 
@@ -98,12 +99,12 @@ class QuiosqueService : IntentService("QuiosqueService") {
         notificationManager.notify(id, notification)
     }
 
-    private fun openLoginActivity() {
+    private fun openLoginActivity(action: String) {
         val context = getBaseContext()
         val intent = Intent(context, MainActivity::class.java)
-        intent.setAction("ufrrj.com.quiosque.action.LOGIN_FAIL");
+        intent.setAction(action)
         intent.setFlags(FLAG_ACTIVITY_NEW_TASK)
-        getApplication().startActivity(intent);
+        getApplication().startActivity(intent)
     }
 
     private fun getHomePage(cookies: Map<String, String>):Document {
