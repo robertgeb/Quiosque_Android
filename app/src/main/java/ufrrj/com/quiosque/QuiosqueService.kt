@@ -67,6 +67,7 @@ class QuiosqueService : IntentService("QuiosqueService") {
         handleActionCheckNovidades()
         // Configurando alarm
         QuiosqueSyncAlarm.setAlarm(this)
+        stopSelf()
     }
 
     private fun handleActionCheckNovidades() {
@@ -82,7 +83,7 @@ class QuiosqueService : IntentService("QuiosqueService") {
 
         // Pega a lista de elementos de noticias
         val noticiasElementsList = homePage.getElementsByClass("item_noticias")
-        // Percorre a lista
+        // Percorre a lista e cria uma notificação para cada noticia encontrada
         var id = 1;
         for (noticiaElement in noticiasElementsList){
             createNotification(noticiaElement.text(), id++)
