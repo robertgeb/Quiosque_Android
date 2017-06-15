@@ -65,6 +65,8 @@ class QuiosqueService : IntentService("QuiosqueService") {
             Log.w("QuiosqueService", "Falha ao salvar os cookies")
         // Cecando novidades
         handleActionCheckNovidades()
+        // Configurando alarm
+        QuiosqueSyncAlarm.setAlarm(this)
     }
 
     private fun handleActionCheckNovidades() {
@@ -81,8 +83,9 @@ class QuiosqueService : IntentService("QuiosqueService") {
         // Pega a lista de elementos de noticias
         val noticiasElementsList = homePage.getElementsByClass("item_noticias")
         // Percorre a lista
+        var id = 1;
         for (noticiaElement in noticiasElementsList){
-            createNotification(noticiaElement.text(), 1)
+            createNotification(noticiaElement.text(), id++)
         }
 
     }

@@ -28,7 +28,7 @@
         </activity>
 
         <receiver
-            android:name=".AlarmReceiver"
+            android:name=".QuiosqueSyncAlarm"
             android:process=":remote" />
 
         <activity android:name=".ConfigActivity" />
