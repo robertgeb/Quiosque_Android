@@ -9,12 +9,7 @@ import android.util.Log
 import org.jsoup.Connection
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import org.jsoup.select.Elements
-import java.lang.UnsupportedOperationException
-import android.R.id.edit
-import android.R.id.home
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
-import android.content.SharedPreferences
 
 
 
@@ -38,7 +33,7 @@ class QuiosqueService : IntentService("QuiosqueService") {
     }
 
     /**
-     * Realiza o Login com a matricula e a senha
+     *  Trata a ação de Login
      */
     private fun handleActionLogin(matricula: String, senha: String) {
         // Fazendo a conexão com os dados e recebendo a resposta
@@ -70,6 +65,9 @@ class QuiosqueService : IntentService("QuiosqueService") {
         stopSelf()
     }
 
+    /**
+     *  Trata a ação para checar novidades
+     */
     private fun handleActionCheckNovidades() {
         // Recuperando ultimo cookie de login
         val settings = getSharedPreferences(COOKIES_FILENAME, 0)
@@ -91,6 +89,9 @@ class QuiosqueService : IntentService("QuiosqueService") {
 
     }
 
+    /**
+     *  Cria notificação de novidade
+     */
     private fun createNotification(notificationText: String, id: Int){
         val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -103,6 +104,9 @@ class QuiosqueService : IntentService("QuiosqueService") {
         notificationManager.notify(id, notification)
     }
 
+    /**
+     *  Abre tela de Login
+     */
     private fun openLoginActivity(action: String) {
         val context = getBaseContext()
         val intent = Intent(context, MainActivity::class.java)
@@ -111,6 +115,9 @@ class QuiosqueService : IntentService("QuiosqueService") {
         getApplication().startActivity(intent)
     }
 
+    /**
+     *  Requisita página inicial
+     */
     private fun getHomePage(cookies: Map<String, String>):Document {
         return Jsoup.connect(QUIOSQUE_URL)
                 .cookies(cookies)
@@ -130,9 +137,9 @@ class QuiosqueService : IntentService("QuiosqueService") {
         private val EXTRA_MATRICULA = "ufrrj.com.quiosque.extra.MATRICULA"
         private val EXTRA_SENHA = "ufrrj.com.quiosque.extra.SENHA"
 
-        /*
-        *   Static method to do Login action
-        **/
+        /**
+         *  Metodo estático para chamar a ação de Login
+         */
         @JvmStatic
         fun startActionLogin(context: Context, matricula: String, senha: String) {
             val intent = Intent(context, QuiosqueService::class.java)
@@ -142,9 +149,9 @@ class QuiosqueService : IntentService("QuiosqueService") {
             context.startService(intent)
         }
 
-        /*
-        *   Static method to check if has novidades
-        **/
+        /**
+         *  Metodo estático para chamar a ação de checar novidade
+         */
         @JvmStatic
         fun startActionCheckNovidades(context: Context) {
             val intent = Intent(context, QuiosqueService::class.java)
