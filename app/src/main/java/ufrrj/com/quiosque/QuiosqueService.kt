@@ -69,6 +69,9 @@ class QuiosqueService : IntentService("QuiosqueService") {
         private val EXTRA_MATRICULA = "ufrrj.com.quiosque.extra.MATRICULA"
         private val EXTRA_SENHA = "ufrrj.com.quiosque.extra.SENHA"
 
+        /*
+        *   Static method to do Login
+        **/
         fun startActionLogin(context: Context, matricula: String, senha: String) {
             val intent = Intent(context, QuiosqueService::class.java)
             intent.action = ACTION_LOGIN
