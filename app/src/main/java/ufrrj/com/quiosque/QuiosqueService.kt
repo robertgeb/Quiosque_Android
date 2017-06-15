@@ -1,15 +1,15 @@
 package ufrrj.com.quiosque
 
 import android.app.IntentService
-import android.app.Notification
+import android.app.NotificationManager
 import android.content.Intent
 import android.content.Context
 import android.support.v4.app.NotificationCompat
+import android.util.Log
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 import java.lang.UnsupportedOperationException
-import java.net.URL
 
 
 /**
@@ -44,18 +44,27 @@ class QuiosqueService : IntentService("QuiosqueService") {
      * parameters.
      */
     private fun handleActionLogin(matricula: String, senha: String) {
+        Log.w("QuiosqueService", "Action Login Called")
+
         val doc: Document = Jsoup.connect(QUIOSQUE_URL)
                 .data("edtIdUs", matricula)
                 .data("edtIdSen", senha)
                 .data("btnIdOk", "Ok")
                 .userAgent("Mozilla")
                 .post()
-        val noticiasElem: Elements = doc.getElementsByClass("item_noticias_arq")
+
+        val noticiasElem: Elements = doc.getElementsByClass("item_noticias_dest")
+
         for (noticia in noticiasElem){
+            Log.w("QuiosqueService", "Nova noticia")
             val notification = NotificationCompat.Builder(this)
                     .setContentTitle("Nova notícia")
                     .setSubText(noticia.text())
+                    .setSmallIcon(android.R.color.transparent)
                     .build()
+
+            val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.notify(1, notification)
         }
 
 
