@@ -44,7 +44,6 @@ class QuiosqueService : IntentService("QuiosqueService") {
      * parameters.
      */
     private fun handleActionLogin(matricula: String, senha: String) {
-        Log.w("QuiosqueService", "Action Login Called")
 
         val doc: Document = Jsoup.connect(QUIOSQUE_URL)
                 .data("edtIdUs", matricula)
@@ -52,19 +51,24 @@ class QuiosqueService : IntentService("QuiosqueService") {
                 .data("btnIdOk", "Ok")
                 .userAgent("Mozilla")
                 .post()
+        Log.w("QuiosqueService", doc.toString())
 
-        val noticiasElem: Elements = doc.getElementsByClass("item_noticias_dest")
+        val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        var mNotificationId = 1
+
+        val noticiasElem = doc.getElementsByClass("item_noticias_dest")
 
         for (noticia in noticiasElem){
-            Log.w("QuiosqueService", "Nova noticia")
+            Log.w("QuiosqueService", "Noticia: " + noticia.text())
             val notification = NotificationCompat.Builder(this)
                     .setContentTitle("Nova notícia")
                     .setSubText(noticia.text())
-                    .setSmallIcon(android.R.color.transparent)
+                    .setSmallIcon(R.color.colorPrimary)
                     .build()
 
-            val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.notify(1, notification)
+
+            notificationManager.notify(mNotificationId++, notification)
         }
 
 
