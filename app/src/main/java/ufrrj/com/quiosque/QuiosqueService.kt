@@ -12,6 +12,7 @@ import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 import java.lang.UnsupportedOperationException
 import android.R.id.edit
+import android.R.id.home
 import android.content.SharedPreferences
 
 
@@ -22,10 +23,6 @@ import android.content.SharedPreferences
  */
 class QuiosqueService : IntentService("QuiosqueService") {
 
-    // URL base do quiosque
-    private val QUIOSQUE_URL = "http://academico.ufrrj.br/quiosque/aluno/quiosque.php"
-    private val DATAFILE_NAME = "QuiosqueFile"
-
     override fun onHandleIntent(intent: Intent?) {
         if (intent != null) {
             val action = intent.action
@@ -33,7 +30,8 @@ class QuiosqueService : IntentService("QuiosqueService") {
                 val matricula = intent.getStringExtra(EXTRA_MATRICULA)
                 val senha = intent.getStringExtra(EXTRA_SENHA)
                 handleActionLogin(matricula, senha)
-            }
+            } else (ACTION_CHECK_NOVIDADES == action)
+                handleActionCheckNovidades()
         }
     }
 
@@ -51,52 +49,78 @@ class QuiosqueService : IntentService("QuiosqueService") {
                 .execute()
 
         // Abrindo arquivo para salvar preferencias
-        val settings = getSharedPreferences(DATAFILE_NAME, 0)
+        val settings = getSharedPreferences(COOKIES_FILENAME, 0)
         val editor = settings.edit()
 
         // Salvado cada cookie para usar em futuras requisições
         for (cookie in response.cookies())
             editor.putString(cookie.key, cookie.value)
-
+        // Checando erros ao salvar
         if (!editor.commit())
             Log.w("QuiosqueService", "Falha ao salvar os cookies")
-        
-        // Analisando e salvando dados da pagina inicial
-        saveHomePage(response.parse())
+        // Cecando novidades
+        handleActionCheckNovidades()
     }
 
-    /**
-     *  Analisa os dados da página inicial
-     */
-    private fun saveHomePage(homePage: Document) {
-        // Obtendo gerenciador de notificações
-        val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        // Variável para alterar a id de cada notificação
-        var noticiasNotificationId = 1
-        // ArrayList com todos os elementos de notícia
-        val noticiasElem = homePage.getElementsByClass("item_noticias_dest")
-        // Loop pelas notícias
-        for (noticia in noticiasElem){
-            // Criando notificação
-            val notification = NotificationCompat.Builder(this)
-                    .setContentTitle("Nova notícia")
-                    .setContentText(noticia.text())
-                    .setSmallIcon(R.color.colorPrimary)
-                    .build()
-            // Enviando notificação e alterando ID da próxima notificação
-            notificationManager.notify(noticiasNotificationId++, notification)
+    private fun handleActionCheckNovidades() {
+        // Recuperando ultimo cookie de login
+        val settings = getSharedPreferences(COOKIES_FILENAME, 0)
+        // Requisitando HomePage
+        val homePage = getHomePage(settings.getAll() as Map<String, String>)
+        // Se cookie não for válido abrir Login Activity
+        if (homePage.getElementById("frmId") != null){
+            openLoginActivity()
+            return
         }
+
+        // Pega a lista de elementos de noticias
+        val noticiasElementsList = homePage.getElementsByClass("item_noticias")
+        // Percorre a lista
+        for (noticiaElement in noticiasElementsList){
+            createNotification(noticiaElement.text(), 1)
+        }
+
     }
+
+    private fun createNotification(notificationText: String, id: Int){
+        val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        val notification = NotificationCompat.Builder(this)
+                .setContentTitle("Novidades no Quiosque")
+                .setContentText(notificationText)
+                .setSmallIcon(R.color.colorPrimary)
+                .build()
+
+        notificationManager.notify(id, notification)
+    }
+
+    private fun openLoginActivity() {
+        val context = getBaseContext()
+        val intent = Intent(context, MainActivity::class.java)
+        getApplication().startActivity(intent);
+    }
+
+    private fun getHomePage(cookies: Map<String, String>):Document {
+        return Jsoup.connect(QUIOSQUE_URL)
+                .cookies(cookies)
+                .userAgent("Mozilla")
+                .get()
+    }
+    
 
     companion object {
 
+        private val QUIOSQUE_URL = "http://academico.ufrrj.br/quiosque/aluno/quiosque.php"
+        private val COOKIES_FILENAME = "CookiesFile"
+
         private val ACTION_LOGIN = "ufrrj.com.quiosque.action.LOGIN"
+        private val ACTION_CHECK_NOVIDADES = "ufrrj.com.quiosque.action.CHECK_NOVIDADES"
 
         private val EXTRA_MATRICULA = "ufrrj.com.quiosque.extra.MATRICULA"
         private val EXTRA_SENHA = "ufrrj.com.quiosque.extra.SENHA"
 
         /*
-        *   Static method to do Login
+        *   Static method to do Login action
         **/
         @JvmStatic
         fun startActionLogin(context: Context, matricula: String, senha: String) {
@@ -104,6 +128,16 @@ class QuiosqueService : IntentService("QuiosqueService") {
             intent.action = ACTION_LOGIN
             intent.putExtra(EXTRA_MATRICULA, matricula)
             intent.putExtra(EXTRA_SENHA, senha)
+            context.startService(intent)
+        }
+
+        /*
+        *   Static method to check if has novidades
+        **/
+        @JvmStatic
+        fun startActionCheckNovidades(context: Context) {
+            val intent = Intent(context, QuiosqueService::class.java)
+            intent.action = ACTION_CHECK_NOVIDADES
             context.startService(intent)
         }
     }
