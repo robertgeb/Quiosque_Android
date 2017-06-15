@@ -72,6 +72,7 @@ class QuiosqueService : IntentService("QuiosqueService") {
         /*
         *   Static method to do Login
         **/
+        @JvmStatic
         fun startActionLogin(context: Context, matricula: String, senha: String) {
             val intent = Intent(context, QuiosqueService::class.java)
             intent.action = ACTION_LOGIN

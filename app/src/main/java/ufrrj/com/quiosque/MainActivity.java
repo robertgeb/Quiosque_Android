@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.login_signin:
                 //Login(matricula.getText().toString(), password.getText().toString());
                 // Chamando o meotodo estático para login
-                QuiosqueService.Companion.startActionLogin(this, matricula.getText().toString(), password.getText().toString());
+                QuiosqueService.startActionLogin(this, matricula.getText().toString(), password.getText().toString());
                 break;
         }
     }
