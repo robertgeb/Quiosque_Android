@@ -7,7 +7,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
 
     private String ACTION_LOGIN_FAIL = "ufrrj.com.quiosque.action.LOGIN_FAIL";
     private String ACTION_COOKIE_EXPIRED = "ufrrj.com.quiosque.action.COOKIE_EXPIRED";

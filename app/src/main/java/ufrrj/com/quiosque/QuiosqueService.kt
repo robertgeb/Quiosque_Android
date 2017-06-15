@@ -109,7 +109,7 @@ class QuiosqueService : IntentService("QuiosqueService") {
      */
     private fun openLoginActivity(action: String) {
         val context = getBaseContext()
-        val intent = Intent(context, MainActivity::class.java)
+        val intent = Intent(context, LoginActivity::class.java)
         intent.setAction(action)
         intent.setFlags(FLAG_ACTIVITY_NEW_TASK)
         getApplication().startActivity(intent)
